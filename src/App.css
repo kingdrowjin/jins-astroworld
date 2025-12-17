@@ -1,0 +1,465 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.app {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  padding: 30px 20px;
+  font-family: 'Inter', sans-serif;
+}
+
+.controls-bar {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.add-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.add-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.print-btn {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  border: none;
+  padding: 14px 35px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(56, 239, 125, 0.4);
+}
+
+.print-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(56, 239, 125, 0.6);
+}
+
+/* Receipt Styles */
+.receipt {
+  max-width: 580px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  color: white;
+  padding: 12px 15px;
+}
+
+.phone-left, .phone-right {
+  font-size: 11px;
+  line-height: 1.5;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+}
+
+.center-header {
+  text-align: center;
+  flex: 1;
+}
+
+.blessing {
+  font-size: 9px;
+  margin-bottom: 4px;
+  font-family: 'Poppins', sans-serif;
+  opacity: 0.9;
+}
+
+.ganpati-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 6px 0;
+  border: 3px solid #ffd700;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+.company-name {
+  font-size: 32px;
+  font-weight: 800;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, #fff 0%, #ffd700 50%, #fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  margin: 0;
+  filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));
+}
+
+.tagline {
+  background: linear-gradient(135deg, #e31837 0%, #ff4757 100%);
+  color: white;
+  font-size: 10px;
+  padding: 4px 20px;
+  display: inline-block;
+  margin-top: 4px;
+  border-radius: 20px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+}
+
+.address {
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  color: white;
+  text-align: center;
+  font-size: 10px;
+  padding: 8px;
+  font-family: 'Inter', sans-serif;
+}
+
+/* Customer Section */
+.customer-section {
+  display: flex;
+  border-bottom: 2px solid #e0e0e0;
+  background: #fafafa;
+}
+
+.customer-left {
+  flex: 1.5;
+  padding: 15px;
+  border-right: 2px solid #e0e0e0;
+}
+
+.customer-right {
+  flex: 1;
+  padding: 15px;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.field-row:last-child {
+  margin-bottom: 0;
+}
+
+.field-row label {
+  font-size: 13px;
+  font-weight: 600;
+  min-width: 60px;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+
+.field-row input {
+  flex: 1;
+  border: none;
+  border-bottom: 2px solid #ddd;
+  padding: 6px 8px;
+  font-size: 14px;
+  background: transparent;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.3s ease;
+}
+
+.field-row input:focus {
+  border-bottom-color: #667eea;
+}
+
+/* Items Table */
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.items-table th {
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  color: white;
+  padding: 12px 8px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.items-table td {
+  border: 1px solid #e0e0e0;
+  padding: 4px;
+  height: 38px;
+}
+
+.items-table tbody tr:nth-child(even) {
+  background: #f8f9fa;
+}
+
+.items-table tbody tr:hover {
+  background: #e8f4ff;
+}
+
+.items-table input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  padding: 4px 8px;
+  font-size: 13px;
+  background: transparent;
+  outline: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.items-table input:focus {
+  background: #fff;
+  box-shadow: inset 0 0 0 2px #667eea;
+  border-radius: 4px;
+}
+
+/* Hide number input spinners */
+.items-table input[type="number"]::-webkit-outer-spin-button,
+.items-table input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.items-table input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.remove-btn {
+  background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+  color: white;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: all 0.3s ease;
+}
+
+.remove-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 75, 43, 0.4);
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 15px;
+  background: #fafafa;
+  border-top: 2px solid #e0e0e0;
+}
+
+.thanks {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Poppins', sans-serif;
+  color: #333;
+}
+
+.total-box {
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  color: white;
+  padding: 10px 25px;
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  gap: 20px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+}
+
+.total-value {
+  min-width: 50px;
+  text-align: right;
+  color: #38ef7d;
+}
+
+.signature-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px;
+  font-size: 12px;
+  border-top: 1px solid #e0e0e0;
+  font-family: 'Poppins', sans-serif;
+  color: #555;
+}
+
+.for-company {
+  font-weight: 700;
+  color: #333;
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .app {
+    background: white;
+    padding: 0;
+    min-height: auto;
+  }
+
+  .receipt {
+    max-width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+    border: 1px solid #000;
+  }
+
+  .header {
+    background: #000 !important;
+    padding: 6px 10px;
+  }
+
+  .phone-left, .phone-right {
+    font-size: 9px;
+    line-height: 1.3;
+  }
+
+  .blessing {
+    font-size: 7px;
+    margin-bottom: 2px;
+  }
+
+  .ganpati-icon {
+    width: 30px;
+    height: 30px;
+    margin: 2px 0;
+    border-width: 2px;
+  }
+
+  .company-name {
+    font-size: 22px;
+    background: none;
+    -webkit-text-fill-color: white;
+    color: white;
+    letter-spacing: 1px;
+  }
+
+  .tagline {
+    background: #c00 !important;
+    font-size: 8px;
+    padding: 2px 12px;
+    margin-top: 2px;
+  }
+
+  .address {
+    background: #000 !important;
+    font-size: 8px;
+    padding: 4px;
+  }
+
+  .customer-section {
+    background: white;
+  }
+
+  .customer-left, .customer-right {
+    padding: 8px;
+  }
+
+  .field-row {
+    margin-bottom: 4px;
+  }
+
+  .field-row label {
+    font-size: 10px;
+    min-width: 45px;
+  }
+
+  .field-row input {
+    font-size: 11px;
+    padding: 2px 4px;
+    border-bottom: 1px solid #333;
+  }
+
+  .items-table th {
+    background: #000 !important;
+    padding: 5px 4px;
+    font-size: 9px;
+  }
+
+  .items-table td {
+    height: 22px;
+    padding: 1px;
+  }
+
+  .items-table input {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+
+  .items-table tbody tr:nth-child(even) {
+    background: transparent;
+  }
+
+  .items-table tbody tr:hover {
+    background: transparent;
+  }
+
+  .footer {
+    background: white;
+    padding: 10px;
+  }
+
+  .thanks {
+    font-size: 14px;
+  }
+
+  .total-box {
+    background: #000 !important;
+    padding: 6px 15px;
+    font-size: 12px;
+    border-radius: 0;
+  }
+
+  .total-value {
+    color: white;
+  }
+
+  .signature-row {
+    padding: 8px 10px;
+    font-size: 9px;
+  }
+
+  @page {
+    margin: 5mm;
+    size: A5;
+  }
+}
