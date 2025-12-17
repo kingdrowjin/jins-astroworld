@@ -1,7 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 function App() {
+  const [activeTab, setActiveTab] = useState('create')
+  const [savedReceipts, setSavedReceipts] = useState([])
+  const [viewingReceipt, setViewingReceipt] = useState(null)
+  const [editingId, setEditingId] = useState(null)
+
   const [customerInfo, setCustomerInfo] = useState({
     ms: '',
     tone: '',
@@ -19,6 +24,20 @@ function App() {
       pieces: ''
     }))
   )
+
+  // Load receipts from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem('bhagat_receipts')
+    if (stored) {
+      setSavedReceipts(JSON.parse(stored))
+    }
+  }, [])
+
+  // Save receipts to localStorage
+  const saveToStorage = (receipts) => {
+    localStorage.setItem('bhagat_receipts', JSON.stringify(receipts))
+    setSavedReceipts(receipts)
+  }
 
   const updateCustomer = (field, value) => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }))
@@ -57,155 +76,412 @@ function App() {
     window.print()
   }
 
+  const resetForm = () => {
+    setCustomerInfo({
+      ms: '',
+      tone: '',
+      charak: '',
+      chNo: '',
+      date: new Date().toLocaleDateString('en-GB')
+    })
+    setItems(Array.from({ length: 8 }, (_, i) => ({
+      id: i + 1,
+      chNo: '',
+      lotNo: '',
+      description: '',
+      pieces: ''
+    })))
+    setEditingId(null)
+  }
+
+  const saveReceipt = () => {
+    // Validate - at least M/s should be filled
+    if (!customerInfo.ms.trim()) {
+      alert('Please enter M/s (Customer Name)')
+      return
+    }
+
+    const receipt = {
+      id: editingId || Date.now(),
+      customerInfo,
+      items: items.filter(item => item.description || item.pieces),
+      total: getTotal(),
+      createdAt: editingId
+        ? savedReceipts.find(r => r.id === editingId)?.createdAt
+        : new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+
+    let updatedReceipts
+    if (editingId) {
+      updatedReceipts = savedReceipts.map(r => r.id === editingId ? receipt : r)
+    } else {
+      updatedReceipts = [receipt, ...savedReceipts]
+    }
+
+    saveToStorage(updatedReceipts)
+    resetForm()
+    setActiveTab('list')
+  }
+
+  const viewReceipt = (receipt) => {
+    setViewingReceipt(receipt)
+  }
+
+  const editReceipt = (receipt) => {
+    setCustomerInfo(receipt.customerInfo)
+    // Restore items with empty rows to fill up to 8
+    const filledItems = [...receipt.items]
+    while (filledItems.length < 8) {
+      filledItems.push({
+        id: Date.now() + filledItems.length,
+        chNo: '',
+        lotNo: '',
+        description: '',
+        pieces: ''
+      })
+    }
+    setItems(filledItems)
+    setEditingId(receipt.id)
+    setViewingReceipt(null)
+    setActiveTab('create')
+  }
+
+  const deleteReceipt = (id) => {
+    if (confirm('Are you sure you want to delete this receipt?')) {
+      const updatedReceipts = savedReceipts.filter(r => r.id !== id)
+      saveToStorage(updatedReceipts)
+      setViewingReceipt(null)
+    }
+  }
+
+  const closeViewing = () => {
+    setViewingReceipt(null)
+  }
+
   return (
     <div className="app">
-      <div className="no-print controls-bar">
-        <button className="add-btn" onClick={addRow}>+ Add Row</button>
-        <button className="print-btn" onClick={handlePrint}>Print Receipt</button>
+      {/* Tabs */}
+      <div className="tabs no-print">
+        <button
+          className={`tab ${activeTab === 'create' ? 'active' : ''}`}
+          onClick={() => setActiveTab('create')}
+        >
+          {editingId ? 'Edit Receipt' : 'Create Receipt'}
+        </button>
+        <button
+          className={`tab ${activeTab === 'list' ? 'active' : ''}`}
+          onClick={() => setActiveTab('list')}
+        >
+          All Receipts ({savedReceipts.length})
+        </button>
       </div>
 
-      <div className="receipt" id="receipt">
-        {/* Header */}
-        <div className="header">
-          <div className="phone-left">
-            <p>Mo. 98253 45258</p>
-            <p>82005 83692</p>
+      {/* Create/Edit Receipt Tab */}
+      {activeTab === 'create' && (
+        <>
+          <div className="no-print controls-bar">
+            <button className="add-btn" onClick={addRow}>+ Add Row</button>
+            <button className="save-btn" onClick={saveReceipt}>
+              {editingId ? 'Update Receipt' : 'Save Receipt'}
+            </button>
+            <button className="print-btn" onClick={handlePrint}>Print</button>
+            {editingId && (
+              <button className="cancel-btn" onClick={resetForm}>Cancel Edit</button>
+            )}
           </div>
-          <div className="center-header">
-            <p className="blessing">|| Shree Ganeshay Namh ||</p>
-            <img
-              src="https://i.pinimg.com/736x/48/96/b7/4896b72ec65e2a7d7407415818d3ca2f.jpg"
-              alt="Ganpati"
-              className="ganpati-icon"
-            />
-            <h1 className="company-name">BHAGAT CREATION</h1>
-            <p className="tagline">Specialist in All Type of Hand Work</p>
-          </div>
-          <div className="phone-right">
-            <p>Mo. 99788 25558</p>
-            <p>91041 53558</p>
-          </div>
-        </div>
 
-        <p className="address">A-168, Sitaram Society Part-1, Nr. Archana School, Puna-Bombay Market Road, Surat.</p>
+          <div className="receipt" id="receipt">
+            {/* Header */}
+            <div className="header">
+              <div className="phone-left">
+                <p>Mo. 98253 45258</p>
+                <p>82005 83692</p>
+              </div>
+              <div className="center-header">
+                <p className="blessing">|| Shree Ganeshay Namh ||</p>
+                <img
+                  src="https://i.pinimg.com/736x/48/96/b7/4896b72ec65e2a7d7407415818d3ca2f.jpg"
+                  alt="Ganpati"
+                  className="ganpati-icon"
+                />
+                <h1 className="company-name">BHAGAT CREATION</h1>
+                <p className="tagline">Specialist in All Type of Hand Work</p>
+              </div>
+              <div className="phone-right">
+                <p>Mo. 99788 25558</p>
+                <p>91041 53558</p>
+              </div>
+            </div>
 
-        {/* Customer Info */}
-        <div className="customer-section">
-          <div className="customer-left">
-            <div className="field-row">
-              <label>M/s.</label>
-              <input
-                type="text"
-                value={customerInfo.ms}
-                onChange={(e) => updateCustomer('ms', e.target.value)}
-              />
-            </div>
-            <div className="field-row">
-              <label>Tone</label>
-              <input
-                type="text"
-                value={customerInfo.tone}
-                onChange={(e) => updateCustomer('tone', e.target.value)}
-              />
-            </div>
-            <div className="field-row">
-              <label>Charak</label>
-              <input
-                type="text"
-                value={customerInfo.charak}
-                onChange={(e) => updateCustomer('charak', e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="customer-right">
-            <div className="field-row">
-              <label>Ch. No.</label>
-              <input
-                type="text"
-                value={customerInfo.chNo}
-                onChange={(e) => updateCustomer('chNo', e.target.value)}
-              />
-            </div>
-            <div className="field-row">
-              <label>Date :</label>
-              <input
-                type="text"
-                value={customerInfo.date}
-                onChange={(e) => updateCustomer('date', e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
+            <p className="address">A-168, Sitaram Society Part-1, Nr. Archana School, Puna-Bombay Market Road, Surat.</p>
 
-        {/* Items Table */}
-        <table className="items-table">
-          <thead>
-            <tr>
-              <th style={{width: '60px'}}>Ch. No.</th>
-              <th style={{width: '70px'}}>Lot. No.</th>
-              <th>Description</th>
-              <th style={{width: '80px'}}>Pieces</th>
-              <th className="no-print" style={{width: '40px'}}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item.id}>
-                <td>
+            {/* Customer Info */}
+            <div className="customer-section">
+              <div className="customer-left">
+                <div className="field-row">
+                  <label>M/s.</label>
                   <input
                     type="text"
-                    value={item.chNo}
-                    onChange={(e) => updateItem(item.id, 'chNo', e.target.value)}
+                    value={customerInfo.ms}
+                    onChange={(e) => updateCustomer('ms', e.target.value)}
                   />
-                </td>
-                <td>
+                </div>
+                <div className="field-row">
+                  <label>Tone</label>
                   <input
                     type="text"
-                    value={item.lotNo}
-                    onChange={(e) => updateItem(item.id, 'lotNo', e.target.value)}
+                    value={customerInfo.tone}
+                    onChange={(e) => updateCustomer('tone', e.target.value)}
                   />
-                </td>
-                <td>
+                </div>
+                <div className="field-row">
+                  <label>Charak</label>
                   <input
                     type="text"
-                    value={item.description}
-                    onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                    value={customerInfo.charak}
+                    onChange={(e) => updateCustomer('charak', e.target.value)}
                   />
-                </td>
-                <td>
+                </div>
+              </div>
+              <div className="customer-right">
+                <div className="field-row">
+                  <label>Ch. No.</label>
                   <input
-                    type="number"
-                    value={item.pieces}
-                    onChange={(e) => updateItem(item.id, 'pieces', e.target.value)}
-                    onKeyDown={(e) => ['e', 'E', '+', '-', '.'].includes(e.key) && e.preventDefault()}
+                    type="text"
+                    value={customerInfo.chNo}
+                    onChange={(e) => updateCustomer('chNo', e.target.value)}
                   />
-                </td>
-                <td className="no-print">
-                  <button className="remove-btn" onClick={() => removeRow(item.id)}>×</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </div>
+                <div className="field-row">
+                  <label>Date :</label>
+                  <input
+                    type="text"
+                    value={customerInfo.date}
+                    onChange={(e) => updateCustomer('date', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
 
-        {/* Footer */}
-        <div className="footer">
-          <div className="footer-left">
-            <p className="thanks">Thanks.....</p>
+            {/* Items Table */}
+            <table className="items-table">
+              <thead>
+                <tr>
+                  <th style={{width: '60px'}}>Ch. No.</th>
+                  <th style={{width: '70px'}}>Lot. No.</th>
+                  <th>Description</th>
+                  <th style={{width: '80px'}}>Pieces</th>
+                  <th className="no-print" style={{width: '40px'}}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {items.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <input
+                        type="text"
+                        value={item.chNo}
+                        onChange={(e) => updateItem(item.id, 'chNo', e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={item.lotNo}
+                        onChange={(e) => updateItem(item.id, 'lotNo', e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={item.description}
+                        onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={item.pieces}
+                        onChange={(e) => updateItem(item.id, 'pieces', e.target.value)}
+                        onKeyDown={(e) => ['e', 'E', '+', '-', '.'].includes(e.key) && e.preventDefault()}
+                      />
+                    </td>
+                    <td className="no-print">
+                      <button className="remove-btn" onClick={() => removeRow(item.id)}>×</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Footer */}
+            <div className="footer">
+              <div className="footer-left">
+                <p className="thanks">Thanks.....</p>
+              </div>
+              <div className="footer-right">
+                <div className="total-box">
+                  <span>TOTAL</span>
+                  <span className="total-value">{getTotal() || ''}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="signature-row">
+              <p>RECEIVER'S SIGN.........................</p>
+              <p className="for-company">FOR, BHAGAT CREATION</p>
+            </div>
           </div>
-          <div className="footer-right">
-            <div className="total-box">
-              <span>TOTAL</span>
-              <span className="total-value">{getTotal() || ''}</span>
+        </>
+      )}
+
+      {/* Receipts List Tab */}
+      {activeTab === 'list' && !viewingReceipt && (
+        <div className="receipts-list">
+          <h2>Saved Receipts</h2>
+          {savedReceipts.length === 0 ? (
+            <div className="no-receipts">
+              <p>No receipts saved yet</p>
+              <button onClick={() => setActiveTab('create')}>Create First Receipt</button>
+            </div>
+          ) : (
+            <div className="receipts-grid">
+              {savedReceipts.map(receipt => (
+                <div key={receipt.id} className="receipt-card" onClick={() => viewReceipt(receipt)}>
+                  <div className="receipt-card-header">
+                    <h3>{receipt.customerInfo.ms}</h3>
+                    <span className="receipt-date">{receipt.customerInfo.date}</span>
+                  </div>
+                  <div className="receipt-card-body">
+                    <p><strong>Ch. No:</strong> {receipt.customerInfo.chNo || '-'}</p>
+                    <p><strong>Tone:</strong> {receipt.customerInfo.tone || '-'}</p>
+                    <p><strong>Items:</strong> {receipt.items.length}</p>
+                  </div>
+                  <div className="receipt-card-footer">
+                    <span className="total-badge">Total: {receipt.total} pcs</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* View Receipt Detail */}
+      {activeTab === 'list' && viewingReceipt && (
+        <div className="receipt-detail">
+          <div className="detail-actions no-print">
+            <button className="back-btn" onClick={closeViewing}>← Back to List</button>
+            <button className="edit-btn" onClick={() => editReceipt(viewingReceipt)}>Edit</button>
+            <button className="delete-btn" onClick={() => deleteReceipt(viewingReceipt.id)}>Delete</button>
+            <button className="print-btn" onClick={handlePrint}>Print</button>
+          </div>
+
+          <div className="receipt" id="receipt">
+            {/* Header */}
+            <div className="header">
+              <div className="phone-left">
+                <p>Mo. 98253 45258</p>
+                <p>82005 83692</p>
+              </div>
+              <div className="center-header">
+                <p className="blessing">|| Shree Ganeshay Namh ||</p>
+                <img
+                  src="https://i.pinimg.com/736x/48/96/b7/4896b72ec65e2a7d7407415818d3ca2f.jpg"
+                  alt="Ganpati"
+                  className="ganpati-icon"
+                />
+                <h1 className="company-name">BHAGAT CREATION</h1>
+                <p className="tagline">Specialist in All Type of Hand Work</p>
+              </div>
+              <div className="phone-right">
+                <p>Mo. 99788 25558</p>
+                <p>91041 53558</p>
+              </div>
+            </div>
+
+            <p className="address">A-168, Sitaram Society Part-1, Nr. Archana School, Puna-Bombay Market Road, Surat.</p>
+
+            {/* Customer Info */}
+            <div className="customer-section view-mode">
+              <div className="customer-left">
+                <div className="field-row">
+                  <label>M/s.</label>
+                  <span className="field-value">{viewingReceipt.customerInfo.ms}</span>
+                </div>
+                <div className="field-row">
+                  <label>Tone</label>
+                  <span className="field-value">{viewingReceipt.customerInfo.tone}</span>
+                </div>
+                <div className="field-row">
+                  <label>Charak</label>
+                  <span className="field-value">{viewingReceipt.customerInfo.charak}</span>
+                </div>
+              </div>
+              <div className="customer-right">
+                <div className="field-row">
+                  <label>Ch. No.</label>
+                  <span className="field-value">{viewingReceipt.customerInfo.chNo}</span>
+                </div>
+                <div className="field-row">
+                  <label>Date :</label>
+                  <span className="field-value">{viewingReceipt.customerInfo.date}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Items Table */}
+            <table className="items-table">
+              <thead>
+                <tr>
+                  <th style={{width: '60px'}}>Ch. No.</th>
+                  <th style={{width: '70px'}}>Lot. No.</th>
+                  <th>Description</th>
+                  <th style={{width: '80px'}}>Pieces</th>
+                </tr>
+              </thead>
+              <tbody>
+                {viewingReceipt.items.map((item, index) => (
+                  <tr key={index}>
+                    <td><span className="cell-value">{item.chNo}</span></td>
+                    <td><span className="cell-value">{item.lotNo}</span></td>
+                    <td><span className="cell-value">{item.description}</span></td>
+                    <td><span className="cell-value">{item.pieces}</span></td>
+                  </tr>
+                ))}
+                {/* Add empty rows if less than 8 items for print */}
+                {Array.from({ length: Math.max(0, 8 - viewingReceipt.items.length) }).map((_, i) => (
+                  <tr key={`empty-${i}`}>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {/* Footer */}
+            <div className="footer">
+              <div className="footer-left">
+                <p className="thanks">Thanks.....</p>
+              </div>
+              <div className="footer-right">
+                <div className="total-box">
+                  <span>TOTAL</span>
+                  <span className="total-value">{viewingReceipt.total || ''}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="signature-row">
+              <p>RECEIVER'S SIGN.........................</p>
+              <p className="for-company">FOR, BHAGAT CREATION</p>
             </div>
           </div>
         </div>
-
-        <div className="signature-row">
-          <p>RECEIVER'S SIGN.........................</p>
-          <p className="for-company">FOR, BHAGAT CREATION</p>
-        </div>
-      </div>
+      )}
     </div>
   )
 }

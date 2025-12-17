@@ -13,6 +13,37 @@
   font-family: 'Inter', sans-serif;
 }
 
+/* Tabs */
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.tab {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  padding: 12px 30px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.tab:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.tab.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
 .controls-bar {
   display: flex;
   gap: 15px;
@@ -56,6 +87,239 @@
 .print-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(56, 239, 125, 0.6);
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.6);
+}
+
+.cancel-btn {
+  background: linear-gradient(135deg, #4b4b4b 0%, #2c2c2c 100%);
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #5a5a5a 0%, #3a3a3a 100%);
+}
+
+.back-btn {
+  background: linear-gradient(135deg, #4b4b4b 0%, #2c2c2c 100%);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+}
+
+.back-btn:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg, #5a5a5a 0%, #3a3a3a 100%);
+}
+
+.edit-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.edit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 75, 43, 0.4);
+}
+
+.delete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 75, 43, 0.6);
+}
+
+/* Receipts List */
+.receipts-list {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.receipts-list h2 {
+  color: white;
+  text-align: center;
+  margin-bottom: 25px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+}
+
+.no-receipts {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+}
+
+.no-receipts p {
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.no-receipts button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+}
+
+.receipts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.receipt-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.receipt-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+.receipt-card-header {
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.receipt-card-header h3 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.receipt-date {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.receipt-card-body {
+  padding: 15px;
+}
+
+.receipt-card-body p {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #555;
+}
+
+.receipt-card-body strong {
+  color: #333;
+}
+
+.receipt-card-footer {
+  padding: 12px 15px;
+  background: #f8f9fa;
+  border-top: 1px solid #eee;
+}
+
+.total-badge {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* Receipt Detail View */
+.receipt-detail {
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
+
+/* View Mode Styles */
+.view-mode .field-value {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  border-bottom: 2px solid #ddd;
+  min-height: 28px;
+}
+
+.cell-value {
+  display: block;
+  padding: 4px 8px;
+  font-size: 13px;
 }
 
 /* Receipt Styles */
@@ -325,19 +589,65 @@
     padding: 15px 10px;
   }
 
-  .controls-bar {
-    gap: 10px;
+  .tabs {
+    gap: 8px;
     margin-bottom: 20px;
   }
 
-  .add-btn {
-    padding: 12px 18px;
-    font-size: 13px;
+  .tab {
+    padding: 10px 16px;
+    font-size: 12px;
+  }
+
+  .controls-bar {
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .add-btn, .save-btn, .cancel-btn {
+    padding: 10px 14px;
+    font-size: 12px;
   }
 
   .print-btn {
-    padding: 12px 22px;
-    font-size: 13px;
+    padding: 10px 18px;
+    font-size: 12px;
+  }
+
+  .receipts-list h2 {
+    font-size: 20px;
+    margin-bottom: 20px;
+  }
+
+  .receipts-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .receipt-card-header {
+    padding: 12px;
+  }
+
+  .receipt-card-header h3 {
+    font-size: 14px;
+  }
+
+  .receipt-card-body {
+    padding: 12px;
+  }
+
+  .receipt-card-body p {
+    font-size: 12px;
+  }
+
+  .detail-actions {
+    gap: 8px;
+  }
+
+  .back-btn, .edit-btn, .delete-btn {
+    padding: 10px 14px;
+    font-size: 12px;
   }
 
   .receipt {
