@@ -1,11 +1,30 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import './App.css'
+
+// Debounce hook
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () => clearTimeout(timer)
+  }, [value, delay])
+
+  return debouncedValue
+}
 
 function App() {
   const [activeTab, setActiveTab] = useState('create')
   const [savedReceipts, setSavedReceipts] = useState([])
   const [viewingReceipt, setViewingReceipt] = useState(null)
   const [editingId, setEditingId] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // Debounce search query - 300ms delay
+  const debouncedSearch = useDebounce(searchQuery, 300)
 
   const [customerInfo, setCustomerInfo] = useState({
     ms: '',
@@ -38,6 +57,20 @@ function App() {
     localStorage.setItem('bhagat_receipts', JSON.stringify(receipts))
     setSavedReceipts(receipts)
   }
+
+  // Filter receipts based on search query (name, ch no, charak)
+  const filteredReceipts = useMemo(() => {
+    if (!debouncedSearch.trim()) return savedReceipts
+
+    const query = debouncedSearch.toLowerCase().trim()
+    return savedReceipts.filter(receipt => {
+      const name = (receipt.customerInfo.ms || '').toLowerCase()
+      const chNo = (receipt.customerInfo.chNo || '').toLowerCase()
+      const charak = (receipt.customerInfo.charak || '').toLowerCase()
+
+      return name.includes(query) || chNo.includes(query) || charak.includes(query)
+    })
+  }, [savedReceipts, debouncedSearch])
 
   const updateCustomer = (field, value) => {
     setCustomerInfo(prev => ({ ...prev, [field]: value }))
@@ -340,30 +373,53 @@ function App() {
       {activeTab === 'list' && !viewingReceipt && (
         <div className="receipts-list">
           <h2>Saved Receipts</h2>
+
+          {/* Search Bar */}
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Search by Name, Ch. No., or Charak..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+            {searchQuery && (
+              <button className="clear-search" onClick={() => setSearchQuery('')}>×</button>
+            )}
+          </div>
+
           {savedReceipts.length === 0 ? (
             <div className="no-receipts">
               <p>No receipts saved yet</p>
               <button onClick={() => setActiveTab('create')}>Create First Receipt</button>
             </div>
-          ) : (
-            <div className="receipts-grid">
-              {savedReceipts.map(receipt => (
-                <div key={receipt.id} className="receipt-card" onClick={() => viewReceipt(receipt)}>
-                  <div className="receipt-card-header">
-                    <h3>{receipt.customerInfo.ms}</h3>
-                    <span className="receipt-date">{receipt.customerInfo.date}</span>
-                  </div>
-                  <div className="receipt-card-body">
-                    <p><strong>Ch. No:</strong> {receipt.customerInfo.chNo || '-'}</p>
-                    <p><strong>Tone:</strong> {receipt.customerInfo.tone || '-'}</p>
-                    <p><strong>Items:</strong> {receipt.items.length}</p>
-                  </div>
-                  <div className="receipt-card-footer">
-                    <span className="total-badge">Total: {receipt.total} pcs</span>
-                  </div>
-                </div>
-              ))}
+          ) : filteredReceipts.length === 0 ? (
+            <div className="no-receipts">
+              <p>No receipts found for "{searchQuery}"</p>
+              <button onClick={() => setSearchQuery('')}>Clear Search</button>
             </div>
+          ) : (
+            <>
+              <p className="results-count">{filteredReceipts.length} receipt{filteredReceipts.length !== 1 ? 's' : ''} found</p>
+              <div className="receipts-grid">
+                {filteredReceipts.map(receipt => (
+                  <div key={receipt.id} className="receipt-card" onClick={() => viewReceipt(receipt)}>
+                    <div className="receipt-card-header">
+                      <h3>{receipt.customerInfo.ms}</h3>
+                      <span className="receipt-date">{receipt.customerInfo.date}</span>
+                    </div>
+                    <div className="receipt-card-body">
+                      <p><strong>Ch. No:</strong> {receipt.customerInfo.chNo || '-'}</p>
+                      <p><strong>Charak:</strong> {receipt.customerInfo.charak || '-'}</p>
+                      <p><strong>Items:</strong> {receipt.items.length}</p>
+                    </div>
+                    <div className="receipt-card-footer">
+                      <span className="total-badge">Total: {receipt.total} pcs</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       )}
