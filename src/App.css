@@ -904,16 +904,23 @@
   }
 
   .app {
-    background: white;
-    padding: 0;
-    min-height: auto;
+    background: white !important;
+    padding: 0 !important;
+    min-height: auto !important;
   }
 
   .receipt {
     max-width: 100%;
-    box-shadow: none;
-    border-radius: 0;
+    box-shadow: none !important;
+    border-radius: 0 !important;
     border: 2px solid #000;
+    background: white !important;
+    overflow: hidden !important;
+  }
+
+  /* Remove all gradients and dark backgrounds */
+  *:not(.no-print) {
+    background-image: none !important;
   }
 
   /* Header - White BG, Black Text */
@@ -1056,15 +1063,35 @@
     padding: 8px 10px;
     font-size: 9px;
     color: #000;
+    background: white !important;
   }
 
   .for-company {
     color: #000;
   }
 
-  /* 5x7 inch page size */
+  /* Hide any remaining dark backgrounds */
+  .receipt-card-header,
+  .total-badge,
+  .tabs,
+  .controls-bar,
+  .detail-actions {
+    display: none !important;
+  }
+
+  /* 5.5 x 7.5 inch page size with no margins for header/footer removal */
   @page {
-    margin: 5mm;
-    size: 5in 7in;
+    margin: 0;
+    size: 5.5in 7.5in;
+  }
+
+  /* Add padding to body instead */
+  body {
+    margin: 5mm !important;
+    padding: 0 !important;
+  }
+
+  html, body {
+    background: white !important;
   }
 }
