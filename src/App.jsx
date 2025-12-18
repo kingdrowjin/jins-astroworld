@@ -16,33 +16,6 @@ function useDebounce(value, delay) {
   return debouncedValue
 }
 
-// Get next Ch. No. from localStorage
-function getNextChNo() {
-  // First check the counter
-  const lastChNo = localStorage.getItem('bhagat_last_chno')
-  if (lastChNo) {
-    return parseInt(lastChNo) + 1
-  }
-
-  // If no counter, check existing receipts to find highest Ch. No.
-  const stored = localStorage.getItem('bhagat_receipts')
-  if (stored) {
-    const receipts = JSON.parse(stored)
-    let maxChNo = 0
-    receipts.forEach(r => {
-      const num = parseInt(r.customerInfo.chNo)
-      if (!isNaN(num) && num > maxChNo) {
-        maxChNo = num
-      }
-    })
-    if (maxChNo > 0) {
-      return maxChNo + 1
-    }
-  }
-
-  return 1
-}
-
 function App() {
   const [activeTab, setActiveTab] = useState('create')
   const [savedReceipts, setSavedReceipts] = useState([])
@@ -58,7 +31,7 @@ function App() {
     ms: '',
     tone: '',
     charak: '',
-    chNo: getNextChNo().toString(),
+    chNo: '',
     date: new Date().toLocaleDateString('en-GB')
   })
 
@@ -76,23 +49,7 @@ function App() {
   useEffect(() => {
     const stored = localStorage.getItem('bhagat_receipts')
     if (stored) {
-      const receipts = JSON.parse(stored)
-      setSavedReceipts(receipts)
-
-      // Initialize Ch. No. counter if not set
-      if (!localStorage.getItem('bhagat_last_chno') && receipts.length > 0) {
-        let maxChNo = 0
-        receipts.forEach(r => {
-          const num = parseInt(r.customerInfo.chNo)
-          if (!isNaN(num) && num > maxChNo) {
-            maxChNo = num
-          }
-        })
-        if (maxChNo > 0) {
-          localStorage.setItem('bhagat_last_chno', maxChNo.toString())
-          setCustomerInfo(prev => ({ ...prev, chNo: (maxChNo + 1).toString() }))
-        }
-      }
+      setSavedReceipts(JSON.parse(stored))
     }
   }, [])
 
@@ -184,7 +141,7 @@ function App() {
       ms: '',
       tone: '',
       charak: '',
-      chNo: getNextChNo().toString(),
+      chNo: '',
       date: new Date().toLocaleDateString('en-GB')
     })
     setItems(Array.from({ length: 8 }, (_, i) => ({
@@ -220,11 +177,6 @@ function App() {
       updatedReceipts = savedReceipts.map(r => r.id === editingId ? receipt : r)
     } else {
       updatedReceipts = [receipt, ...savedReceipts]
-      // Save the Ch. No. for auto-increment (only for new receipts)
-      const chNoNum = parseInt(customerInfo.chNo)
-      if (!isNaN(chNoNum)) {
-        localStorage.setItem('bhagat_last_chno', chNoNum.toString())
-      }
     }
 
     saveToStorage(updatedReceipts)
