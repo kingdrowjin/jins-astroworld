@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import './App.css'
 
 // Debounce hook
@@ -16,12 +16,40 @@ function useDebounce(value, delay) {
   return debouncedValue
 }
 
+// Get next Ch. No. from localStorage
+function getNextChNo() {
+  // First check the counter
+  const lastChNo = localStorage.getItem('bhagat_last_chno')
+  if (lastChNo) {
+    return parseInt(lastChNo) + 1
+  }
+
+  // If no counter, check existing receipts to find highest Ch. No.
+  const stored = localStorage.getItem('bhagat_receipts')
+  if (stored) {
+    const receipts = JSON.parse(stored)
+    let maxChNo = 0
+    receipts.forEach(r => {
+      const num = parseInt(r.customerInfo.chNo)
+      if (!isNaN(num) && num > maxChNo) {
+        maxChNo = num
+      }
+    })
+    if (maxChNo > 0) {
+      return maxChNo + 1
+    }
+  }
+
+  return 1
+}
+
 function App() {
   const [activeTab, setActiveTab] = useState('create')
   const [savedReceipts, setSavedReceipts] = useState([])
   const [viewingReceipt, setViewingReceipt] = useState(null)
   const [editingId, setEditingId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const formRef = useRef(null)
 
   // Debounce search query - 300ms delay
   const debouncedSearch = useDebounce(searchQuery, 300)
@@ -30,7 +58,7 @@ function App() {
     ms: '',
     tone: '',
     charak: '',
-    chNo: '',
+    chNo: getNextChNo().toString(),
     date: new Date().toLocaleDateString('en-GB')
   })
 
@@ -48,7 +76,23 @@ function App() {
   useEffect(() => {
     const stored = localStorage.getItem('bhagat_receipts')
     if (stored) {
-      setSavedReceipts(JSON.parse(stored))
+      const receipts = JSON.parse(stored)
+      setSavedReceipts(receipts)
+
+      // Initialize Ch. No. counter if not set
+      if (!localStorage.getItem('bhagat_last_chno') && receipts.length > 0) {
+        let maxChNo = 0
+        receipts.forEach(r => {
+          const num = parseInt(r.customerInfo.chNo)
+          if (!isNaN(num) && num > maxChNo) {
+            maxChNo = num
+          }
+        })
+        if (maxChNo > 0) {
+          localStorage.setItem('bhagat_last_chno', maxChNo.toString())
+          setCustomerInfo(prev => ({ ...prev, chNo: (maxChNo + 1).toString() }))
+        }
+      }
     }
   }, [])
 
@@ -76,6 +120,22 @@ function App() {
     setCustomerInfo(prev => ({ ...prev, [field]: value }))
   }
 
+  // Handle Enter key to move to next field
+  const handleEnterKey = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      const form = formRef.current
+      if (!form) return
+
+      const inputs = Array.from(form.querySelectorAll('input:not([type="hidden"])'))
+      const currentIndex = inputs.indexOf(e.target)
+
+      if (currentIndex >= 0 && currentIndex < inputs.length - 1) {
+        inputs[currentIndex + 1].focus()
+      }
+    }
+  }
+
   const updateItem = (id, field, value) => {
     setItems(prev => prev.map(item =>
       item.id === id ? { ...item, [field]: value } : item
@@ -98,6 +158,16 @@ function App() {
     }
   }
 
+  // Auto-fill Ch. No. when user focuses on other fields in the row
+  const handleRowFocus = (id, index) => {
+    setItems(prev => prev.map(item => {
+      if (item.id === id && item.chNo === '') {
+        return { ...item, chNo: (index + 1).toString() }
+      }
+      return item
+    }))
+  }
+
   const getTotal = () => {
     return items.reduce((sum, item) => {
       const pieces = parseInt(item.pieces) || 0
@@ -114,7 +184,7 @@ function App() {
       ms: '',
       tone: '',
       charak: '',
-      chNo: '',
+      chNo: getNextChNo().toString(),
       date: new Date().toLocaleDateString('en-GB')
     })
     setItems(Array.from({ length: 8 }, (_, i) => ({
@@ -150,6 +220,11 @@ function App() {
       updatedReceipts = savedReceipts.map(r => r.id === editingId ? receipt : r)
     } else {
       updatedReceipts = [receipt, ...savedReceipts]
+      // Save the Ch. No. for auto-increment (only for new receipts)
+      const chNoNum = parseInt(customerInfo.chNo)
+      if (!isNaN(chNoNum)) {
+        localStorage.setItem('bhagat_last_chno', chNoNum.toString())
+      }
     }
 
     saveToStorage(updatedReceipts)
@@ -224,7 +299,7 @@ function App() {
             )}
           </div>
 
-          <div className="receipt" id="receipt">
+          <div className="receipt" id="receipt" ref={formRef}>
             {/* Header */}
             <div className="header">
               <div className="phone-left">
@@ -258,6 +333,7 @@ function App() {
                     type="text"
                     value={customerInfo.ms}
                     onChange={(e) => updateCustomer('ms', e.target.value)}
+                    onKeyDown={handleEnterKey}
                   />
                 </div>
                 <div className="field-row">
@@ -266,6 +342,7 @@ function App() {
                     type="text"
                     value={customerInfo.tone}
                     onChange={(e) => updateCustomer('tone', e.target.value)}
+                    onKeyDown={handleEnterKey}
                   />
                 </div>
                 <div className="field-row">
@@ -274,6 +351,7 @@ function App() {
                     type="text"
                     value={customerInfo.charak}
                     onChange={(e) => updateCustomer('charak', e.target.value)}
+                    onKeyDown={handleEnterKey}
                   />
                 </div>
               </div>
@@ -284,6 +362,7 @@ function App() {
                     type="text"
                     value={customerInfo.chNo}
                     onChange={(e) => updateCustomer('chNo', e.target.value)}
+                    onKeyDown={handleEnterKey}
                   />
                 </div>
                 <div className="field-row">
@@ -292,6 +371,7 @@ function App() {
                     type="text"
                     value={customerInfo.date}
                     onChange={(e) => updateCustomer('date', e.target.value)}
+                    onKeyDown={handleEnterKey}
                   />
                 </div>
               </div>
@@ -309,20 +389,18 @@ function App() {
                 </tr>
               </thead>
               <tbody>
-                {items.map((item) => (
+                {items.map((item, index) => (
                   <tr key={item.id}>
                     <td>
-                      <input
-                        type="text"
-                        value={item.chNo}
-                        onChange={(e) => updateItem(item.id, 'chNo', e.target.value)}
-                      />
+                      <span className="cell-value ch-no-cell">{item.chNo}</span>
                     </td>
                     <td>
                       <input
                         type="text"
                         value={item.lotNo}
                         onChange={(e) => updateItem(item.id, 'lotNo', e.target.value)}
+                        onKeyDown={handleEnterKey}
+                        onFocus={() => handleRowFocus(item.id, index)}
                       />
                     </td>
                     <td>
@@ -330,6 +408,8 @@ function App() {
                         type="text"
                         value={item.description}
                         onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                        onKeyDown={handleEnterKey}
+                        onFocus={() => handleRowFocus(item.id, index)}
                       />
                     </td>
                     <td>
@@ -337,7 +417,14 @@ function App() {
                         type="number"
                         value={item.pieces}
                         onChange={(e) => updateItem(item.id, 'pieces', e.target.value)}
-                        onKeyDown={(e) => ['e', 'E', '+', '-', '.'].includes(e.key) && e.preventDefault()}
+                        onKeyDown={(e) => {
+                          if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+                            e.preventDefault()
+                          } else {
+                            handleEnterKey(e)
+                          }
+                        }}
+                        onFocus={() => handleRowFocus(item.id, index)}
                       />
                     </td>
                     <td className="no-print">
