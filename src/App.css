@@ -1085,9 +1085,14 @@
     size: 5.5in 7.5in;
   }
 
-  /* Add padding to body instead */
+  /* Minimal margins */
   body {
-    margin: 5mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .receipt {
+    margin: 0 !important;
     padding: 0 !important;
   }
 
